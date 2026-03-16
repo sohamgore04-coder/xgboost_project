@@ -1,22 +1,63 @@
 import streamlit as st
 import joblib
-import numpy as np
+import pandas as pd
+import os
 
-# Load trained model
-model = joblib.load("xgboost_model.pkl")
+# Load model safely
+current_dir = os.path.dirname(__file__)
+model_path = os.path.join(current_dir, "xgboost_model.pkl")
+model = joblib.load(model_path)
 
-st.title("XGBoost Prediction App")
+st.set_page_config(page_title="House Price Predictor", page_icon="🏠")
 
-st.write("Enter input values to make prediction")
+st.title("🏠 House Price Prediction App")
 
-feature1 = st.number_input("Feature 1")
-feature2 = st.number_input("Feature 2")
-feature3 = st.number_input("Feature 3")
+st.write(
+"""
+Enter the details of the house below and the model will estimate the **house price**.
+This prediction is powered by a Machine Learning model built using XGBoost.
+"""
+)
 
-if st.button("Predict"):
-    
-    input_data = np.array([[feature1, feature2, feature3]])
-    
-    prediction = model.predict(input_data)
-    
-    st.success(f"Prediction: {prediction[0]}")
+st.divider()
+
+# ----------- User Inputs -----------
+
+area = st.number_input("Area (Square Feet)", min_value=300, max_value=10000, value=1200)
+
+bedrooms = st.slider("Number of Bedrooms", 1, 6, 3)
+
+bathrooms = st.slider("Number of Bathrooms", 1, 5, 2)
+
+floors = st.slider("Number of Floors", 1, 3, 1)
+
+age = st.slider("Age of the House (years)", 0, 50, 5)
+
+location_score = st.slider(
+    "Location Score (1 = poor location, 10 = prime location)", 
+    1, 
+    10, 
+    5
+)
+
+st.divider()
+
+# ----------- Prediction Button -----------
+
+if st.button("Predict House Price"):
+
+    input_data = pd.DataFrame(
+        [[area, bedrooms, bathrooms, floors, age, location_score]],
+        columns=[
+            "area",
+            "bedrooms",
+            "bathrooms",
+            "floors",
+            "age",
+            "location_score"
+        ]
+    )
+
+    prediction = model.predict(input_data)[0]
+
+    st.success(f"Estimated House Price: ₹ {round(prediction,2):,}")
