@@ -2,49 +2,100 @@ import streamlit as st
 import joblib
 import pandas as pd
 import os
+import matplotlib.pyplot as plt
 
-# Load model safely
+# -----------------------------
+# Load Model
+# -----------------------------
+
 current_dir = os.path.dirname(__file__)
 model_path = os.path.join(current_dir, "xgboost_model.pkl")
 model = joblib.load(model_path)
 
-st.set_page_config(page_title="House Price Predictor", page_icon="🏠")
+# -----------------------------
+# Page Settings
+# -----------------------------
 
-st.title("🏠 House Price Prediction App")
+st.set_page_config(
+    page_title="House Price Predictor",
+    page_icon="🏠",
+    layout="wide"
+)
+
+# -----------------------------
+# Title Section
+# -----------------------------
+
+st.title("🏠 AI House Price Prediction Dashboard")
 
 st.write(
 """
-Enter the details of the house below and the model will estimate the **house price**.
-This prediction is powered by a Machine Learning model built using XGBoost.
+This application predicts **house prices using Machine Learning**.  
+Enter the property details and the model will estimate the price.
 """
 )
 
-st.divider()
+st.markdown("---")
 
-# ----------- User Inputs -----------
+# -----------------------------
+# Input Layout (Two Columns)
+# -----------------------------
 
-area = st.number_input("Area (Square Feet)", min_value=300, max_value=10000, value=1200)
+col1, col2 = st.columns(2)
 
-bedrooms = st.slider("Number of Bedrooms", 1, 6, 3)
+with col1:
 
-bathrooms = st.slider("Number of Bathrooms", 1, 5, 2)
+    area = st.number_input(
+        "📐 Area (Square Feet)",
+        min_value=300,
+        max_value=10000,
+        value=1200
+    )
 
-floors = st.slider("Number of Floors", 1, 3, 1)
+    bedrooms = st.number_input(
+        "🛏 Bedrooms",
+        min_value=1,
+        max_value=10,
+        value=3
+    )
 
-age = st.slider("Age of the House (years)", 0, 50, 5)
+    bathrooms = st.number_input(
+        "🚿 Bathrooms",
+        min_value=1,
+        max_value=10,
+        value=2
+    )
 
-location_score = st.slider(
-    "Location Score (1 = poor location, 10 = prime location)", 
-    1, 
-    10, 
-    5
-)
+with col2:
 
-st.divider()
+    floors = st.number_input(
+        "🏢 Floors",
+        min_value=1,
+        max_value=5,
+        value=1
+    )
 
-# ----------- Prediction Button -----------
+    age = st.number_input(
+        "📅 House Age (Years)",
+        min_value=0,
+        max_value=100,
+        value=5
+    )
 
-if st.button("Predict House Price"):
+    location_score = st.number_input(
+        "📍 Location Score (1–10)",
+        min_value=1,
+        max_value=10,
+        value=5
+    )
+
+st.markdown("---")
+
+# -----------------------------
+# Prediction Button
+# -----------------------------
+
+if st.button("🔍 Predict House Price"):
 
     input_data = pd.DataFrame(
         [[area, bedrooms, bathrooms, floors, age, location_score]],
@@ -60,4 +111,51 @@ if st.button("Predict House Price"):
 
     prediction = model.predict(input_data)[0]
 
-    st.success(f"Estimated House Price: ₹ {round(prediction,2):,}")
+    st.success(f"💰 Estimated House Price: ₹ {round(prediction,2):,}")
+
+    st.balloons()
+
+# -----------------------------
+# Feature Importance Chart
+# -----------------------------
+
+st.markdown("---")
+st.subheader("📊 Feature Importance")
+
+try:
+
+    importance = model.feature_importances_
+
+    features = [
+        "Area",
+        "Bedrooms",
+        "Bathrooms",
+        "Floors",
+        "Age",
+        "Location Score"
+    ]
+
+    fig, ax = plt.subplots()
+
+    ax.barh(features, importance)
+
+    ax.set_xlabel("Importance Score")
+    ax.set_title("Which Features Affect Price Most")
+
+    st.pyplot(fig)
+
+except:
+    st.info("Feature importance not available for this model.")
+
+# -----------------------------
+# Footer
+# -----------------------------
+
+st.markdown("---")
+
+st.caption(
+"""
+Machine Learning Model: XGBoost  
+App Framework: Streamlit
+"""
+)
