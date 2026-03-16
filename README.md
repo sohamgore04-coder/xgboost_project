@@ -7,7 +7,8 @@ The app takes input values from the user and predicts an output using a trained 
 The goal of this project is to demonstrate how a machine learning model can be trained and then deployed as a simple web application.
 
 ---
-
+##Live Demo:-
+https://xgboostproject-txezjkuvr4sgphnbxbjulj.streamlit.app/
 # Project Overview
 
 In many real-world problems, we want to predict a value based on some input information.
