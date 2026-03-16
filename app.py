@@ -26,7 +26,7 @@ st.set_page_config(
 # Title Section
 # -----------------------------
 
-st.title("🏠 AI House Price Prediction Dashboard")
+st.title("🏠 House Price Prediction Dashboard")
 
 st.write(
 """
